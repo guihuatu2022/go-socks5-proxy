@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  socks5-proxy:
+    image: 'ariadata/go-socks5-proxy:latest'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-socks5-proxy
+    restart: unless-stopped
+    ports:
+      - '${DC_PROXY_PORT:-1080}:1080'
+    volumes:
+      - ./users.conf:/app/users.conf

@@ -1,0 +1,4 @@
+curl -x socks5://user:pass@127.0.0.1:60255 https://myip4.ir
+curl -x socks5h://user:pass@127.0.0.1:60255 https://myip4.ir
+curl -x http://user:pass@127.0.0.1:60255 https://myip4.ir
+curl -x https://user:pass@127.0.0.1:60255 https://myip4.ir
