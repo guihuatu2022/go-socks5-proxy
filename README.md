@@ -40,7 +40,7 @@ Each line should contain one user's credentials in the format `username:password
 ### Using Docker Run
 
 ```bash
-docker run -p 1081:1080 -v ./users.conf:/app/users.conf ariadata/go-socks5-proxy
+docker run -p 1081:1080 -v ./users.conf:/app/users.conf ghcr.io/ariadata/go-socks5-proxy
 ```
 
 ### Using Docker Compose
@@ -51,7 +51,7 @@ docker run -p 1081:1080 -v ./users.conf:/app/users.conf ariadata/go-socks5-proxy
 version: "3.8"
 services:
   socks5-proxy:
-    image: 'ariadata/go-socks5-proxy:latest'
+    image: 'ghcr.io/ariadata/go-socks5-proxy:latest'
     container_name: go-socks5-proxy
     restart: unless-stopped
     ports:

@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   socks5-proxy:
-    image: 'ariadata/go-socks5-proxy:latest'
+    image: 'ghcr.io/ariadata/go-socks5-proxy:latest'
     build:
       context: .
       dockerfile: Dockerfile
