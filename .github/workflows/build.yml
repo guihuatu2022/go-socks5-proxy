@@ -10,7 +10,7 @@ jobs:
     runs-on: 
       group: self-hosted 
       labels:
-        - linux
+        - Linux
     permissions:
       packages: write
       contents: read
