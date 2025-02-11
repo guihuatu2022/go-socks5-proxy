@@ -1,0 +1,21 @@
+cat > /etc/systemd/system/socks5-server.service << 'EOF'
+[Unit]
+Description=SOCKS5 Proxy Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/server
+Restart=always
+RestartSec=5
+WorkingDirectory=/usr/local/bin
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+
+
+systemctl daemon-reload
+systemctl enable socks5-server
+systemctl start socks5-server
