@@ -1,6 +1,6 @@
 # GitHub Actions Workflows
 
-This repository includes several GitHub Actions workflows for automated building, testing, and releasing.
+This repository includes GitHub Actions workflows for automated building, testing, and releasing.
 
 ## Workflows Overview
 
@@ -9,7 +9,6 @@ This repository includes several GitHub Actions workflows for automated building
 **Purpose:** Builds and pushes Docker images to GitHub Container Registry (GHCR)
 
 **Features:**
-- Runs tests before building
 - Builds multi-architecture images (linux/amd64, linux/arm64)
 - Uses Docker layer caching for faster builds
 - Only pushes images on main branch (not on PRs)
@@ -17,27 +16,16 @@ This repository includes several GitHub Actions workflows for automated building
 
 **Image Location:** `ghcr.io/YOUR_USERNAME/go-socks5-proxy`
 
-### 2. Release Binary (`release.yml`)
-**Trigger:** When a GitHub release is created
-**Purpose:** Builds a single Linux binary and attaches it to the release
-
-**Features:**
-- Builds for Linux amd64
-- Injects version information from release tag
-- Generates SHA-256 checksums
-- Uploads binary and checksums to the release
-
-### 3. Multi-Platform Release (`release-multiplatform.yml`)
+### 2. Multi-Platform Release (`release-multiplatform.yml`)
 **Trigger:** When a GitHub release is created
 **Purpose:** Builds binaries for multiple platforms and architectures
 
 **Supported Platforms:**
-- Linux (amd64, arm64)
-- Windows (amd64)
-- macOS (amd64, arm64)
+- Linux (amd64, arm64, arm)
+- Windows (386/32-bit, amd64/64-bit)
 
 **Features:**
-- Creates compressed archives (.tar.gz for Unix, .zip for Windows)
+- Creates compressed archives (.tar.gz for Linux, .zip for Windows)
 - Generates checksums for each platform
 - Injects version information
 - Optimized binaries with stripped symbols
@@ -60,7 +48,7 @@ This repository includes several GitHub Actions workflows for automated building
    - Click "Publish release"
 
 3. **Automatic Build:**
-   - Both release workflows will trigger automatically
+   - The release workflow will trigger automatically
    - Binaries will be built and attached to the release
    - Docker images will be built and pushed to GHCR
 
