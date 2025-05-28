@@ -2,7 +2,7 @@
 
 A lightweight and secure SOCKS5/SOCKS5h proxy server implementation in Go with multiple user authentication support.
 
-## Features
+## Features ::
 
 - SOCKS5 and SOCKS5h proxy protocols support
 - Multiple user authentication
