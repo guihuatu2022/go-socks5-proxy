@@ -1,21 +1,71 @@
-cat > /etc/systemd/system/socks5-server.service << 'EOF'
+# SOCKS5 Proxy Server - Systemd Service Setup
+
+# Step 1: Copy the binary to system location
+sudo cp socks5-server /usr/local/bin/
+sudo chmod +x /usr/local/bin/socks5-server
+
+# Step 2: Create configuration directory and copy users file
+sudo mkdir -p /etc/socks5
+sudo cp users.conf /etc/socks5/
+sudo chmod 600 /etc/socks5/users.conf
+sudo chown root:root /etc/socks5/users.conf
+
+# Step 3: Create systemd service file
+sudo tee /etc/systemd/system/socks5-server.service > /dev/null << 'EOF'
 [Unit]
 Description=SOCKS5 Proxy Server
+Documentation=https://github.com/ariadata/go-socks5-proxy
 After=network.target
+Wants=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/server
+ExecStart=/usr/local/bin/socks5-server --users /etc/socks5/users.conf --port 1080 --host 0.0.0.0
+ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=5
-WorkingDirectory=/usr/local/bin
+TimeoutStopSec=30
+
+# Security settings
+User=nobody
+Group=nogroup
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+
+# Working directory
+WorkingDirectory=/etc/socks5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=socks5-server
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
+# Step 4: Reload systemd and enable the service
+sudo systemctl daemon-reload
+sudo systemctl enable socks5-server
 
+# Step 5: Start the service
+sudo systemctl start socks5-server
 
-systemctl daemon-reload
-systemctl enable socks5-server
-systemctl start socks5-server
+# Step 6: Check service status
+sudo systemctl status socks5-server
+
+# Step 7: View logs (optional)
+# sudo journalctl -u socks5-server -f
+
+# Step 8: Test the service
+# curl -x socks5://username:password@127.0.0.1:1080 https://httpbin.org/ip

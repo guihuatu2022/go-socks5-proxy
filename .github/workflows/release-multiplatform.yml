@@ -24,12 +24,6 @@ jobs:
           - goos: linux
             goarch: arm
             suffix: ""
-          - goos: windows
-            goarch: "386"
-            suffix: ".exe"
-          - goos: windows
-            goarch: amd64
-            suffix: ".exe"
 
     steps:
       - uses: actions/checkout@v4
