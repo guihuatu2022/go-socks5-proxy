@@ -4,14 +4,16 @@ on:
   release:
     types: [created]
 
-permissions:
-  contents: write
-
 jobs:
   build:
     name: Build Linux Binaries
-    runs-on:
+    runs-on: 
       group: self-hosted
+      #labels:
+      #  - Linux
+    permissions:
+      packages: write
+      contents: read
     strategy:
       matrix:
         include:
