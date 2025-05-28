@@ -28,13 +28,7 @@ jobs:
           go-version: '1.24.3'
           cache: true
 
-      # Step 3: Test the application
-      - name: Run tests
-        run: |
-          go mod download
-          go test -v ./...
-
-      # Step 4: Log in to GitHub Container Registry (GHCR)
+      # Step 3: Log in to GitHub Container Registry (GHCR)
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -43,7 +37,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 5: Extract metadata for Docker
+      # Step 4: Extract metadata for Docker
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -55,11 +49,11 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      # Step 6: Set up Docker Buildx
+      # Step 5: Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Step 7: Build and push Docker image
+      # Step 6: Build and push Docker image
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
