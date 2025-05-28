@@ -8,7 +8,7 @@ A lightweight, secure, and feature-rich SOCKS5 proxy server implementation in Go
 - 🔐 **Flexible Authentication** - File-based and command-line user management
 - 🐳 **Docker Ready** - Multi-architecture Docker images (amd64, arm64)
 - ⚙️ **Command Line Interface** - Rich CLI with multiple configuration options
-- 🌍 **Multi-Platform** - Binaries for Linux, Windows (32/64-bit), and ARM
+- 🌍 **Multi-Platform Linux** - Binaries for Linux (amd64, arm64, arm)
 - 📦 **No Authentication Mode** - Optional anonymous access
 - 🔄 **Auto-Releases** - Automated GitHub Actions for building and releasing
 - 🛡️ **Secure** - Support for multiple users with different passwords
@@ -257,7 +257,7 @@ guest:GuestTempPass000$
 This project includes automated workflows:
 
 1. **Docker Build** (`build.yml`) - Builds and pushes Docker images to GHCR on every push to main
-2. **Multi-Platform Release** (`release-multiplatform.yml`) - Creates binaries for all platforms on release
+2. **Linux Multi-Platform Release** (`release-multiplatform.yml`) - Creates Linux binaries for all architectures on release
 
 ### Manual Building
 
@@ -267,7 +267,6 @@ go build -o socks5-server main.go
 
 # Cross-compile for different platforms
 GOOS=linux GOARCH=amd64 go build -o socks5-server-linux-amd64 main.go
-GOOS=windows GOARCH=amd64 go build -o socks5-server-windows-amd64.exe main.go
 GOOS=linux GOARCH=arm64 go build -o socks5-server-linux-arm64 main.go
 ```
 

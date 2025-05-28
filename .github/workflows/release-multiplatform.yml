@@ -1,4 +1,4 @@
-name: Multi-Platform Release
+name: Linux Multi-Platform Release
 
 on:
   release:
@@ -9,21 +9,17 @@ permissions:
 
 jobs:
   build:
-    name: Build Multi-Platform Binaries
-    runs-on:
-      group: self-hosted
+    name: Build Linux Binaries
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
           - goos: linux
             goarch: amd64
-            suffix: ""
           - goos: linux
             goarch: arm64
-            suffix: ""
           - goos: linux
             goarch: arm
-            suffix: ""
 
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +29,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.24.3'
+          go-version: '1.21.4'
           cache: true
 
       - name: Build binary
@@ -46,18 +42,14 @@ jobs:
           mkdir -p dist
           
           # Set binary name with platform suffix
-          BINARY_NAME="${GITHUB_REPOSITORY##*/}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}"
+          BINARY_NAME="${GITHUB_REPOSITORY##*/}-${{ matrix.goos }}-${{ matrix.goarch }}"
           
           # Build the binary
           go build -v -o "dist/${BINARY_NAME}" -ldflags "-X main.Version=${GITHUB_REF_NAME} -s -w" main.go
           
-          # Create archive
+          # Create tar.gz archive
           cd dist
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            zip "${BINARY_NAME%.exe}.zip" "${BINARY_NAME}"
-          else
-            tar -czf "${BINARY_NAME}.tar.gz" "${BINARY_NAME}"
-          fi
+          tar -czf "${BINARY_NAME}.tar.gz" "${BINARY_NAME}"
 
       - name: Generate checksums
         run: |
@@ -68,7 +60,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/*.zip
             dist/*.tar.gz
             dist/checksums-*.txt
         env:
