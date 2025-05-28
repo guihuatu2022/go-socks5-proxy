@@ -1,0 +1,81 @@
+name: Multi-Platform Release
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Multi-Platform Binaries
+    runs-on:
+      group: self-hosted
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            suffix: ""
+          - goos: linux
+            goarch: arm64
+            suffix: ""
+          - goos: windows
+            goarch: amd64
+            suffix: ".exe"
+          - goos: darwin
+            goarch: amd64
+            suffix: ""
+          - goos: darwin
+            goarch: arm64
+            suffix: ""
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.3'
+          cache: true
+
+      - name: Build binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          # Create dist directory
+          mkdir -p dist
+          
+          # Set binary name with platform suffix
+          BINARY_NAME="${GITHUB_REPOSITORY##*/}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.suffix }}"
+          
+          # Build the binary
+          go build -v -o "dist/${BINARY_NAME}" -ldflags "-X main.Version=${GITHUB_REF_NAME} -s -w" main.go
+          
+          # Create archive
+          cd dist
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            zip "${BINARY_NAME%.exe}.zip" "${BINARY_NAME}"
+          else
+            tar -czf "${BINARY_NAME}.tar.gz" "${BINARY_NAME}"
+          fi
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum * > checksums-${{ matrix.goos }}-${{ matrix.goarch }}.txt
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.zip
+            dist/*.tar.gz
+            dist/checksums-*.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

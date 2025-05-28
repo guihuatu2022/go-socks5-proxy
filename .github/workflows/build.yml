@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build-and-push:
     runs-on: 
       group: self-hosted
-      #labels:
-      #  - Linux
     permissions:
       packages: write
       contents: read
@@ -18,34 +19,54 @@ jobs:
     steps:
       # Step 1: Checkout the repository
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Step 2: Log in to GitHub Container Registry (GHCR)
+      # Step 2: Set up Go (for testing before Docker build)
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.3'
+          cache: true
+
+      # Step 3: Test the application
+      - name: Run tests
+        run: |
+          go mod download
+          go test -v ./...
+
+      # Step 4: Log in to GitHub Container Registry (GHCR)
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 3: Define dynamic image name and tag based on repo name
-      - name: Set dynamic image name and tag
-        id: vars
-        run: |
-          REPO_NAME=$(basename "${{ github.repository }}") # Extract the repository name
-          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/$REPO_NAME"
-          GIT_SHA="${{ github.sha }}"
-          TAG="main-${GIT_SHA:0:7}" # Example: Use first 7 characters of commit SHA
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+      # Step 5: Extract metadata for Docker
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
 
-      # Step 4: Build the Docker image with both tags
-      - name: Build Docker image
-        run: |
-          docker build -t $IMAGE_NAME:$IMAGE_TAG -t $IMAGE_NAME:latest .
+      # Step 6: Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      # Step 5: Push both Docker image tags to GHCR
-      - name: Push Docker image to GHCR
-        run: |
-          docker push $IMAGE_NAME:$IMAGE_TAG
-          docker push $IMAGE_NAME:latest
+      # Step 7: Build and push Docker image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

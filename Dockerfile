@@ -14,7 +14,7 @@ LABEL description="SOCKS5 Proxy Server in Go."
 WORKDIR /build
 
 # Copy go mod and sum files
-COPY go.mod go.sum socks5-server.go ./
+COPY go.mod go.sum main.go ./
 
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
 RUN go mod download
