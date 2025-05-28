@@ -47,8 +47,8 @@ jobs:
           # Set binary name with platform suffix
           BINARY_NAME="${GITHUB_REPOSITORY##*/}-${{ matrix.goos }}-${{ matrix.goarch }}"
           
-          # Build the binary
-          go build -v -o "dist/${BINARY_NAME}" -ldflags "-X main.Version=${GITHUB_REF_NAME} -s -w" main.go
+          # Build the binary with CGO disabled for static compilation
+          CGO_ENABLED=0 go build -v -o "dist/${BINARY_NAME}" -ldflags "-X main.Version=${GITHUB_REF_NAME} -s -w" main.go
           
           # Create tar.gz archive
           cd dist
